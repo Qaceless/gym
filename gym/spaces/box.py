@@ -1,4 +1,5 @@
 import numpy as np
+
 import gym
 from gym import logger
 
@@ -28,22 +29,25 @@ class Box(gym.Space):
                 dtype = np.uint8
             else:
                 dtype = np.float32
-            logger.warn("gym.spaces.Box autodetected dtype as %s. Please provide explicit dtype." % dtype)
+            logger.warn("gym.spaces.Box autodetected dtype as {}. Please provide explicit dtype.".format(dtype))
         self.low = low.astype(dtype)
         self.high = high.astype(dtype)
         gym.Space.__init__(self, shape, dtype)
 
     def sample(self):
         return gym.spaces.np_random.uniform(low=self.low, high=self.high + (0 if self.dtype.kind == 'f' else 1), size=self.low.shape).astype(self.dtype)
+
     def contains(self, x):
         return x.shape == self.shape and (x >= self.low).all() and (x <= self.high).all()
 
     def to_jsonable(self, sample_n):
         return np.array(sample_n).tolist()
+
     def from_jsonable(self, sample_n):
         return [np.asarray(sample) for sample in sample_n]
 
     def __repr__(self):
         return "Box" + str(self.shape)
+
     def __eq__(self, other):
         return np.allclose(self.low, other.low) and np.allclose(self.high, other.high)
